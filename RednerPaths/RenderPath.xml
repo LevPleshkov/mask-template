@@ -1,0 +1,13 @@
+<renderpath>
+    <rendertarget name="template_buffer" sizedivisor="1 1" format="rgba" filter="true" />
+
+    <command type="quad" vs="CutFace" ps="CutFace" output="template_buffer">
+        <texture unit="diffuse" name="Textures/Texture.png" />
+        <parameter name="Test" value="1.0" />
+    </command>
+
+    <command type="quad" vs="TemplateShader" ps="TemplateShader" output="viewport|textureName">
+        <texture unit="diffuse" name="template_buffer" />
+        <parameter name="Test" value="1.0" />
+    </command>
+</renderpath>
