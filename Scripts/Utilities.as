@@ -144,14 +144,16 @@ void SetMaterialTransparent(Material@ material) {
 void FadeInMaterial(
     Material@ material,
     const float speed = 1.0,
-    const float opacity = 1.0
+    const float opacity = 1.0,
+    const bool fromTransparent = true
 ) {
     Vector4 initialColor = material.shaderParameters["MatDiffColor"].GetVector4();
-    if (initialColor.w == 1.0)
+    if (initialColor.w == opacity)
         return;
     ValueAnimation@ animation = ValueAnimation();
     animation.SetKeyFrame(0.0, Variant(Vector4(
-        initialColor.x, initialColor.y, initialColor.z, 0.0
+        initialColor.x, initialColor.y, initialColor.z,
+        fromTransparent ? 0.0 : initialColor.w
     )));
     animation.SetKeyFrame(1.0, Variant(Vector4(
         initialColor.x, initialColor.y, initialColor.z, opacity
@@ -161,17 +163,19 @@ void FadeInMaterial(
 void FadeOutMaterial(
     Material@ material,
     const float speed = 1.0,
-    const float opacity = 1.0
+    const float opacity = 0.0,
+    const bool fromOpaque = true
 ) {
     Vector4 initialColor = material.shaderParameters["MatDiffColor"].GetVector4();
-    if (initialColor.w == 0.0)
+    if (initialColor.w == opacity)
         return;
     ValueAnimation@ animation = ValueAnimation();
     animation.SetKeyFrame(0.0, Variant(Vector4(
-        initialColor.x, initialColor.y, initialColor.z, opacity
+        initialColor.x, initialColor.y, initialColor.z,
+        fromOpaque ? 1.0 : initialColor.w
     )));
     animation.SetKeyFrame(1.0, Variant(Vector4(
-        initialColor.x, initialColor.y, initialColor.z, 0.0
+        initialColor.x, initialColor.y, initialColor.z, opacity
     )));
     material.SetShaderParameterAnimation("MatDiffColor", animation, WM_ONCE, speed);
 }
@@ -260,28 +264,43 @@ void NormalizedToScreen(const Vector2& fromPoint, Vector2& toPoint)
 
 /*
  *  For compatibility with mobile devices... :(
- * 
  *  Existing `Dictionary` class leads to crashes on
  *  mobile devices.
+ * 
+ *  Keys are Strings, values are Variants.
  */
-class MyDictionary
+class Dictionary
 {
     Array<String> keys;
-    Array<String> values;
+    // Array<String> values;
+    Array<Variant> values;
 
     uint length {
         get const { return keys.length; }
     }
 
-    void Set(const String& key, const String& value)
+    void Set(const String& key, const Variant& value)
     {
-        keys.Push(key);
-        values.Push(value);
+        int index = keys.Find(key);
+        if (index == -1)
+        {
+            keys.Push(key);
+            values.Push(value);
+        }
+        else
+        {
+            values[index] = value;
+        }
     }
 
-    void Get(const String& key, String& value) const
+    void Get(const String& key, Variant& value) const
     {
-        uint index = keys.Find(key);
+        int index = keys.Find(key);
+        if (index == -1)
+        {
+            log.Error("Utils::Dictionary - key doesn't exist");
+            return;
+        }
         value = values[index];
     }
 }
@@ -318,7 +337,7 @@ Texture2D@ CreateRenderTargetTexture(
  */
 String AddRenderPath(
     const String shaderName,
-    const MyDictionary shaderParams,
+    const Dictionary shaderParams,
     const String sourceTexturePath,
     const String maskTexturePath,
     const String renderTargetName,
@@ -342,7 +361,8 @@ String AddRenderPath(
     for (uint i = 0; i < shaderParams.length; ++i)
     {
         String key = shaderParams.keys[i];
-        String value; shaderParams.Get(key, value);
+        Variant v = Variant(); shaderParams.Get(key, v);
+        String value = v.GetString();
         rpString.Replace(
             dummy,
             ("<parameter name=\"" + key + "\" value=\"" + value + "\" />\n        " + dummy)
@@ -364,6 +384,12 @@ String AddRenderPath(
 float BihFilter(float new, float old, float k)
 {
     return k * new + (1 - k) * old;
+}
+
+
+float Lerp(float x, float x1, float x2, float y1, float y2)
+{
+    return y1 + (y2 - y1) * (x / (x2 - x1));
 }
 
 }
