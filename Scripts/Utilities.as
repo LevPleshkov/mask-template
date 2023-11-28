@@ -14,6 +14,9 @@ Material@ _getNodeMaterial(const Node@ node) {
         return null;
     }
     BillboardSet@ bbs = node.GetComponent("BillboardSet");
+    if (bbs is null) {
+        return null;
+    }
     return bbs.material;
 }
 
