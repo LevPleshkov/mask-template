@@ -12,7 +12,6 @@ class ScreenInfoProvider
 
     ScreenInfoProvider()
     {
-        Print("ScreenInfoProvider");
         SubscribeToEvent("SrcFrameUpdate", "HandleSrcFrameUpdate");
     }
 
