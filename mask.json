@@ -8,32 +8,18 @@
   "script": "main.as",
 
   "effects": [
-	{ "__________": "__________ COMMENT __________"},
+    { "__________": "__________ COMMENT __________" },
     {
       "name": "patch",
-      "tag": "score",
-      "anchor": "forehead",
-      "visible": "always",
-      "fit": "none",
-      "size": [100.0, 100.0],
-      "offset": [0.0, 0.0, 0.0],
-      "rotation": [0.0, 0.0, 0.0],
-      "allow_rotation": false,
+      "anchor": "free",
       "texture": {
-        "diffuse": "Textures/Texture.png",
-        "normal": "",
-        "color": [1.0, 1.0, 1.0, 1.0],
-        "lit": false,
-        "blend_mode": "replace",
-        "u_transform": [1.0, 0.0, 0.0],
-        "v_transform": [0.0, 1.0, 0.0],
-        "render_order": 0
+        "color": [1, 1, 1, 1]
       },
-      "pass": "",
-      "disabled": false
+      "size": [100.0, 200.0]
     },
 
     {}
   ],
+
   "plugins": [{}]
 }
