@@ -1,8 +1,10 @@
 #include "ScriptEngine/Plugins/BasePlugin.as"
 
 
-Vector4 RGBA_OPAQUE = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-Vector4 RGBA_TRANSPARENT = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
+const Vector4 RGBA_OPAQUE = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+const Vector4 RGBA_TRANSPARENT = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
+const Vector3 ONES_VECTOR_3 = Vector3(1.0f, 1.0f, 1.0f);
+const Vector2 ONES_VECTOR_2 = Vector2(1.0f, 1.0f);
 
 const int FLIP_Y = 1;
 
@@ -29,7 +31,7 @@ Material@ _getNodeMaterial(const Node@ node)
 namespace Utils
 {
 
-/*
+/**
  * Read all textures into array `toArray` from a folder
  * with the first texture named `firstElementPath`.
  */
@@ -69,7 +71,7 @@ void ReadTexturesStartingWith(
 }
 
 
-/*
+/**
  * Get Material from given `node`.
  */
 Material@ GetNodeMaterial(Node@ node)
@@ -86,7 +88,7 @@ Material@ GetNodeMaterial(Node@ node)
 }
 
 
-/*
+/**
  * Get Material from node with given `nodeTag`.
  */
 Material@ GetNodeMaterial(const String& nodeTag)
@@ -102,7 +104,7 @@ Material@ GetNodeMaterial(const String& nodeTag)
 }
 
 
-/*
+/**
  * Get Texture2D from given `node`.
  */
 Texture2D@ GetNodeDiffuseTexture(Node@ node)
@@ -114,7 +116,7 @@ Texture2D@ GetNodeDiffuseTexture(Node@ node)
 }
 
 
-/*
+/**
  * Get Texture2D from node with given `nodeTag`.
  */
 Texture2D@ GetNodeDiffuseTexture(const String& nodeTag)
@@ -126,7 +128,7 @@ Texture2D@ GetNodeDiffuseTexture(const String& nodeTag)
 }
 
 
-/*
+/**
  * Get Texture2D from given `effect`
  */
 Texture2D@ GetEffectTexture(MaskEngine::Mask@ mask, String effectTag)
@@ -148,7 +150,7 @@ Texture2D@ GetEffectTexture(MaskEngine::Mask@ mask, String effectTag)
 }
 
 
-/*
+/**
  * Affect transparency of given `material`.
  */
 void SetMaterialTransparency(Material@ material, float alpha)
@@ -214,7 +216,28 @@ void FadeOutMaterial(
 }
 
 
-/*
+/**
+ * Animate any attribute of a node with passed parameters.
+ */
+void AnimateAttribute(
+    const String& attribute,
+    Node@ node,
+    const Vector3& start,
+    const Vector3& stop,
+    const float speed,
+    const WrapMode mode = WM_ONCE
+) {
+    ValueAnimation @animation = ValueAnimation();
+    animation.interpolationMethod = IM_SPLINE;
+    animation.splineTension = 0.5;
+    animation.SetKeyFrame(0.0, Variant(start));
+    animation.SetKeyFrame(0.5, Variant((start + stop) * 0.5f));
+    animation.SetKeyFrame(1.0, Variant(stop));
+    node.SetAttributeAnimation(attribute, animation, mode, speed);
+}
+
+
+/**
  * Get effect with given `tag`.
  */
 Array<MaskEngine::BaseEffect@> GetEffectsWithTag(
@@ -237,7 +260,7 @@ Array<MaskEngine::BaseEffect@> GetEffectsWithTag(
 }
 
 
-/*
+/**
  * Shuffle array of Texture2D.
  */
 void Shuffle(
@@ -255,7 +278,7 @@ void Shuffle(
 }
 
 
-/*
+/**
  * Generate array of random integers in a range.
  */
 Array<uint> RandomIndices(uint length) {
@@ -292,7 +315,7 @@ void NormalizedToScreen(const Vector2& fromPoint, Vector2& toPoint)
 }
 
 
-/*
+/**
  *  For compatibility with mobile devices... :(
  *  Existing `Dictionary` class leads to crashes on
  *  mobile devices.
@@ -336,7 +359,7 @@ class Dictionary
 }
 
 
-/*
+/**
  *
  */
 Texture2D@ CreateRenderTargetTexture(
@@ -362,7 +385,7 @@ Texture2D@ CreateRenderTargetTexture(
     return texure;
 }
 
-/*
+/**
  *  
  */
 String AddRenderPath(
