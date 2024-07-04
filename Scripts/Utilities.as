@@ -6,7 +6,7 @@ const Vector4 RGBA_TRANSPARENT = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
 const Vector3 ONES_VECTOR_3 = Vector3(1.0f, 1.0f, 1.0f);
 const Vector2 ONES_VECTOR_2 = Vector2(1.0f, 1.0f);
 
-const int FLIP_Y = 1;
+int FLIP_Y = 1;
 
 
 namespace _utils_private
@@ -31,7 +31,7 @@ Material@ _getNodeMaterial(const Node@ node)
 namespace Utils
 {
 
-/**
+/*
  * Read all textures into array `toArray` from a folder
  * with the first texture named `firstElementPath`.
  */
@@ -71,7 +71,7 @@ void ReadTexturesStartingWith(
 }
 
 
-/**
+/*
  * Get Material from given `node`.
  */
 Material@ GetNodeMaterial(Node@ node)
@@ -88,7 +88,7 @@ Material@ GetNodeMaterial(Node@ node)
 }
 
 
-/**
+/*
  * Get Material from node with given `nodeTag`.
  */
 Material@ GetNodeMaterial(const String& nodeTag)
@@ -104,7 +104,7 @@ Material@ GetNodeMaterial(const String& nodeTag)
 }
 
 
-/**
+/*
  * Get Texture2D from given `node`.
  */
 Texture2D@ GetNodeDiffuseTexture(Node@ node)
@@ -116,7 +116,7 @@ Texture2D@ GetNodeDiffuseTexture(Node@ node)
 }
 
 
-/**
+/*
  * Get Texture2D from node with given `nodeTag`.
  */
 Texture2D@ GetNodeDiffuseTexture(const String& nodeTag)
@@ -128,7 +128,7 @@ Texture2D@ GetNodeDiffuseTexture(const String& nodeTag)
 }
 
 
-/**
+/*
  * Get Texture2D from given `effect`
  */
 Texture2D@ GetEffectTexture(MaskEngine::Mask@ mask, String effectTag)
@@ -150,7 +150,7 @@ Texture2D@ GetEffectTexture(MaskEngine::Mask@ mask, String effectTag)
 }
 
 
-/**
+/*
  * Affect transparency of given `material`.
  */
 void SetMaterialTransparency(Material@ material, float alpha)
@@ -216,28 +216,7 @@ void FadeOutMaterial(
 }
 
 
-/**
- * Animate any attribute of a node with passed parameters.
- */
-void AnimateAttribute(
-    const String& attribute,
-    Node@ node,
-    const Vector3& start,
-    const Vector3& stop,
-    const float speed,
-    const WrapMode mode = WM_ONCE
-) {
-    ValueAnimation @animation = ValueAnimation();
-    animation.interpolationMethod = IM_SPLINE;
-    animation.splineTension = 0.5;
-    animation.SetKeyFrame(0.0, Variant(start));
-    animation.SetKeyFrame(0.5, Variant((start + stop) * 0.5f));
-    animation.SetKeyFrame(1.0, Variant(stop));
-    node.SetAttributeAnimation(attribute, animation, mode, speed);
-}
-
-
-/**
+/*
  * Get effect with given `tag`.
  */
 Array<MaskEngine::BaseEffect@> GetEffectsWithTag(
@@ -260,7 +239,7 @@ Array<MaskEngine::BaseEffect@> GetEffectsWithTag(
 }
 
 
-/**
+/*
  * Shuffle array of Texture2D.
  */
 void Shuffle(
@@ -278,7 +257,7 @@ void Shuffle(
 }
 
 
-/**
+/*
  * Generate array of random integers in a range.
  */
 Array<uint> RandomIndices(uint length) {
@@ -311,11 +290,13 @@ Array<uint> NumberToDigits(uint number)
 void NormalizedToScreen(const Vector2& fromPoint, Vector2& toPoint)
 {
     toPoint.x = (fromPoint.x - 0.5f) * ScreenInfo.resolution.x;
-    toPoint.y = FLIP_Y * (fromPoint.y - 0.5f) * ScreenInfo.resolution.y;
+    toPoint.y = (fromPoint.y - 0.5f) * ScreenInfo.resolution.y * FLIP_Y;
+    if (GetPlatform() == "iOS")
+        toPoint.y *= toPoint.y < 0 ? 1.15 : 1.1;
 }
 
 
-/**
+/*
  *  For compatibility with mobile devices... :(
  *  Existing `Dictionary` class leads to crashes on
  *  mobile devices.
@@ -359,7 +340,7 @@ class Dictionary
 }
 
 
-/**
+/*
  *
  */
 Texture2D@ CreateRenderTargetTexture(
@@ -385,7 +366,7 @@ Texture2D@ CreateRenderTargetTexture(
     return texure;
 }
 
-/**
+/*
  *  
  */
 String AddRenderPath(
@@ -443,6 +424,17 @@ float BihFilter(float new, float old, float k)
 float Lerp(float x, float x1, float x2, float y1, float y2)
 {
     return y1 + (y2 - y1) * (x / (x2 - x1));
+}
+
+
+float DistanceSquared(const Vector3& a, const Vector3& b)
+{
+    return Pow(a.x - b.x, 2) + Pow(a.y - b.y, 2) + Pow(a.z - b.z, 2);
+}
+
+float Distance(const Vector3& a, const Vector3& b)
+{
+    return Sqrt(DistanceSquared(a, b));
 }
 
 }
