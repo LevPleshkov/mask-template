@@ -1,10 +1,12 @@
 #include "ScriptEngine/Plugins/BasePlugin.as"
 
-
 const Vector4 RGBA_OPAQUE = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 const Vector4 RGBA_TRANSPARENT = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
 const Vector3 ONES_VECTOR_3 = Vector3(1.0f, 1.0f, 1.0f);
 const Vector2 ONES_VECTOR_2 = Vector2(1.0f, 1.0f);
+
+const float EXP = 2.71828182846;
+const float PI = 3.14159265359;
 
 int FLIP_Y = 1;
 
@@ -195,6 +197,7 @@ void FadeInMaterial(
     )));
     material.SetShaderParameterAnimation("MatDiffColor", animation, WM_ONCE, speed);
 }
+
 void FadeOutMaterial(
     Material@ material,
     const float speed = 1.0,
@@ -240,7 +243,7 @@ Array<MaskEngine::BaseEffect@> GetEffectsWithTag(
 
 
 /*
- * Shuffle array of Texture2D.
+ * Shuffle array of 2D Textures inplace.
  */
 void Shuffle(
     Array<Texture2D@> & array
@@ -251,6 +254,23 @@ void Shuffle(
     {
         uint j = RandomInt(0, i);
         Texture2D@ temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
+/*
+ * Shuffle array of Strings inplace.
+ */
+void Shuffle(
+    Array<String> & array
+) {
+    SetRandomSeed(time.systemTime);
+    uint len = array.length;
+    for (uint i = len - 1; i > 0; i--)
+    {
+        uint j = RandomInt(0, i);
+        String temp = array[i];
         array[i] = array[j];
         array[j] = temp;
     }
@@ -415,6 +435,20 @@ String AddRenderPath(
 }
 
 
+void SetTextEffect(
+    const String& tag,
+    const String& text
+) {
+    Array<Node@> nodes = scene.GetChildrenWithTag(tag, true);
+    if (nodes.empty || nodes[0] is null)
+    {
+        log.Error("text effect not found");
+        return;
+    }
+    nodes[0].name = text;
+    nodes[0].temporary = true;
+}
+
 float BihFilter(float new, float old, float k)
 {
     return k * new + (1 - k) * old;
@@ -432,9 +466,25 @@ float DistanceSquared(const Vector3& a, const Vector3& b)
     return Pow(a.x - b.x, 2) + Pow(a.y - b.y, 2) + Pow(a.z - b.z, 2);
 }
 
+float DistanceSquared(const Vector2& a, const Vector2& b)
+{
+    return Pow(a.x - b.x, 2) + Pow(a.y - b.y, 2);
+}
+
 float Distance(const Vector3& a, const Vector3& b)
 {
     return Sqrt(DistanceSquared(a, b));
+}
+
+float Distance(const Vector2& a, const Vector2& b)
+{
+    return Sqrt(DistanceSquared(a, b));
+}
+
+float Tanh(float x)
+{
+    float e = Pow(EXP, 2 * x);
+    return (e - 1) / (e + 1);
 }
 
 }
